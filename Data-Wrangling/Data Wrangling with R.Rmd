@@ -1,0 +1,158 @@
+---
+title: "Homework 3 - IE6600 - Section 1 - Valli Meenaa Vellaiyan"
+author: "Valli Meenaa Vellaiyan || 002783394"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Libraries, include=TRUE}
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(lubridate)
+#install.packages("tidyverse")
+```
+
+```{r Data, include=TRUE}
+df_farmers = read.csv("E:/Semesters/Sem 2/Comp Visz/fm.csv")
+df_wine = read.csv("E:/Semesters/Sem 2/Comp Visz/wine_data.csv")
+```
+
+# Problem statement
+Learn to use data wrangling functions from libraries like tidyr, dplyr, and stringr to perform analysis on different datasets like "fm.csv" and "wine_data.csv". Perform basic statistical analyses such as finding averages and maximum values after filtering and grouping. Further, make use of pivot function and learn to work with dates. 
+
+## Task 1.1
+```{r Task 1.1, echo =FALSE, warning = FALSE} 
+winery_count <- df_wine %>%
+                group_by(winery) %>%
+                dplyr::summarise(winery_count = n()) %>%
+                arrange(desc(winery_count))
+head(winery_count,7)
+```
+### Output 1.1
+Calculated the frequency count of different types of wineries from the wine dataset using the "group_by" and "summarise" functions from the "dplyr" library. Then, arranged the output in descending order of the count, and displayed the top 7 records of the final dataset using the 'head()' function.
+
+## Task 1.2
+```{r Task 1.2, echo =FALSE, warning = FALSE}
+#Code to calculate the average price by country
+avg_price_country <- df_wine %>%
+                     drop_na(price) %>%
+                     group_by(country) %>%
+                     dplyr::summarise(avg_price_by_country = mean(price))
+head(avg_price_country)
+```
+### Output 1.2
+Calculated the average price after grouping by country on the entire dataset, and then displayed the first few rows of the new dataset.
+
+## Task 1.3
+```{r Task 1.3, echo = FALSE, warning = FALSE}
+#Which province has the highest average points
+sum(is.na(df_wine$points)) #checking to find number of NA values in a column of a dataframe, and drop them if found
+avg_points_province <- df_wine %>%
+                       group_by(province) %>%
+                       dplyr::summarise(avg_points_by_province = mean(points)) %>%
+                       arrange(desc(avg_points_by_province))
+highest_avg_points_province <- avg_points_province[1,]  
+highest_avg_points_province 
+```
+### Output 1.3
+Calculated the average of points after grouping the dataset by province, and then arranged the new dataframe in descending order. Extracted the first row from the sorted dataframe to display the province containing the highest average points.
+
+## Task 1.4
+```{r Task 1.4, echo =FALSE, warning = FALSE}
+df_france <- df_wine %>%
+  filter(country == "France")
+
+france_province <- df_france %>%
+  drop_na(price) %>%
+  group_by(province) %>%
+  dplyr::summarise(avg_price_by_province = mean(price)) %>%
+  arrange(desc(avg_price_by_province))
+
+highest_avg_price <- france_province[1,]
+highest_avg_price
+```
+### Output 1.4
+Filtered the dataset to get data for "France". Then, grouped the data by province and found the average of price. After arranging the new dataframe in descending order, retrieved the first row to display the province in France with the highest average price.
+
+## Task 1.5
+```{r Task 1.5, echo =FALSE, warning = FALSE}
+df_20yr_wines <- df_wine %>%
+                 filter(str_detect(designation,"20-Year") | 
+                        str_detect(designation,"20-year") |
+                        str_detect(designation, "20 Year") |
+                        str_detect(designation,"20 year") |
+                        str_detect(designation,"20 yr.") |
+                        str_detect(designation,"20 Yr.") |
+                        str_detect(designation, "20 Anos"))
+num_20yr_wines <- nrow(df_20yr_wines)
+num_20yr_wines 
+```
+### Output 1.5
+Filtered the df_wine dataset to detect the rows which have 20 year old wines in the "designation" column. Then, calculated the total number of 20 year old wines using the 'nrow' function on the new dataframe.
+
+## Task 2
+```{r Task 2, echo = FALSE}
+df_farmers <- subset(df_farmers, select=c(FMID, city, Season1Date))
+df_farmers <- df_farmers[!(is.na(df_farmers$Season1Date)|df_farmers$Season1Date==""), ]
+
+df_farmers <- separate(df_farmers, Season1Date, sep = "to", into = c("Start_Date","End_Date"), remove = FALSE)
+
+df_farmers$Start_Date = mdy(df_farmers$Start_Date)
+df_farmers$End_Date = mdy(df_farmers$End_Date)
+df_farmers <- df_farmers %>%
+              drop_na()
+
+df_farmers$Start_Month = month(df_farmers$Start_Date)
+df_farmers$End_Month = month(df_farmers$End_Date)
+df_fm_combined <- data.frame() 
+
+for (i in 1:nrow(df_farmers)) {
+    for (j in df_farmers$Start_Month[i]:df_farmers$End_Month[i])  {
+      df_fm_combined  <- bind_rows(df_fm_combined,  data.frame(df_farmers$FMID[i], df_farmers$city[i], Month=j))
+      j=j+1
+    }
+}
+
+df_fm_combined <- dplyr::rename(df_fm_combined, FMID = df_farmers.FMID.i., city = df_farmers.city.i.) #R assigns default column names "df_farmers.FMID.i." and  "df_farmers.city.i." so we are renaming them to the original column names
+
+df_fm_final <- df_fm_combined %>%
+         group_by(city, Month) %>%
+         dplyr::summarise(count=n()) %>%
+         mutate("Month" = month.name[Month])
+
+df_fm_pivoted <- spread(df_fm_final, key = Month, value = count)
+
+df_fm_pivoted <- subset(df_fm_pivoted, select= c(city,January, February, March, April, May, June, 
+                                             July, August, September, October, November, December)) %>%          drop_na() %>% 
+         na.omit("-")
+
+df_fm_pivoted
+```
+### Output 2
+Computed the number of farmers market by cities based on the Month in Season1Date (considering the range of months from start date to end date.
+The output dataframe table is generated using spread() function for pivoting the table.
+
+## Task 3
+```{r Task 3, echo =FALSE, warning = FALSE}
+library(stringr)
+farmers <- read.csv("E:/Semesters/Sem 2/Comp Visz/fm.csv")
+missouri<- farmers[farmers$State=="Missouri",] 
+rem<-missouri[grep("/", missouri$updateTime),]
+rem[c('month','Day','Year')] <- str_split_fixed  (rem$updateTime,"/",3) 
+
+task_3 <- rem %>% select(c('city', 'month')) %>% group_by(city,month) %>% dplyr::summarise(Markets= n()) %>% arrange(desc(Markets))
+task_3
+```
+### Output 3
+First, created a dataframe with rows containing data belonging to the state of "Missouri". Then, used the grep() function to only retrieve rows that have date/month details in the "updateTime" column of the dataframe. Used "str_split_fixed()" function from the "stringr" library to separate dates into three parts, i.e., month, day, and year. 
+Created a new dataframe to group data by city and month, and count the total number of monthly active farmers markets. Then, displayed the first few rows of the final dataframe.
+
+# Conclusion
+In this assignment, I learnt to use new functions from various libraries and R packages, to use the data from provided csv files, for better understanding and analysis. I became more familiar with using pivot, group_by, filter, select, arrange, str_split_texted, grep, etc. and many more functions.
