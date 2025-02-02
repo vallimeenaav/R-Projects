@@ -1,0 +1,193 @@
+---
+title: "HW 2 - IE 6600 - Section 1 - Valli Meenaa Vellaiyan"
+author: "Valli Meenaa Vellaiyan || 002783394"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Libraries, include=TRUE}
+#loading necessary libraries
+library(tidyverse)
+library(dplyr)
+library(stringr)
+```
+
+```{r Data, include=TRUE}
+df_fm = read.csv("/Users/vallimeenaa/Downloads/fm (1).csv",na.strings = "")
+df_ny = read.csv("/Users/vallimeenaa/Downloads/nycollision.csv",na.strings = "")
+```
+
+# Problem statement
+Work on the Farmers Market Dataset and the NY Collisions dataset. Learn to:
+i) Use the dplyr and stringr libraries.
+ii) Use various functions like group_by, summarise, arrange, filter, pivot_longer, pivot_wider, sapply, etc.
+iii) Carry out different statistical analyses using the above libraries and functions, to understand the data better. 
+
+## Task 1
+```{r Task 1, echo =FALSE, warning = FALSE} 
+df_county <- df_fm %>%
+             group_by(County) %>%
+             summarise(number_of_farmers_market=n()) %>%
+             drop_na()
+df_county <- df_county %>%
+             arrange(desc(number_of_farmers_market))
+df_county
+```
+### Output 1
+Displayed the number of markets by ‘County’ after arranging the records in the descending order of number of markets, using the group_by(), summarise(), and arrange() functions.
+
+## Task 2
+```{r Task 2, echo =FALSE, warning = FALSE}
+df_fm$city[df_fm$city == "Philadelphia "] <- "Philadelphia"   #fixed the error in the naming of the city for a few columns, where an extra space was included
+df_fm_penn <- df_fm %>%
+              filter(State == "Pennsylvania") %>%
+              group_by(city) %>%
+              summarise(no_of_farmers_market_by_city=n()) %>%
+              arrange(desc(no_of_farmers_market_by_city)) %>%
+              drop_na()
+head(df_fm_penn,7)
+```
+### Output 2
+Filtered the entire data-frame by State = “Pennsylvania” using the filter() function, and displayed Pennsylvania’s top 7 cities by the count of number of Farmer Markets.
+
+## Task 3
+```{r Task 3, echo =FALSE, warning = FALSE}
+df_fm_mass <- df_fm %>%
+              filter(State == "Massachusetts") %>%
+              select(1,24,25,26,28:58)
+df_fm_pivoted <- df_fm_mass %>%
+                 pivot_longer(cols = Credit:SNAP, names_to = "Payment_System",values_to = "Payment_Status",values_drop_na = TRUE) %>%
+                 pivot_longer(cols = !c("FMID","Payment_System","Payment_Status"), names_to = "Food_Product_Type", values_to = "Product_Status",values_drop_na = TRUE)
+df_fm_final <- filter(df_fm_pivoted, Payment_Status == "Y", Product_Status == "Y") %>%
+               group_by(Payment_System, Food_Product_Type) %>%
+               summarize('Number_of_farmers_market' = n_distinct(FMID), .groups = "drop")
+df_fm_final
+```
+### Output 3
+Used the pivot_longer() function (which transforms the columns into rows) twice to display the payment system types and food product types. Also, displayed the number of farmer markets which accepted the corresponding payment system as well as supplied the corresponding food products.
+
+## Task 4
+```{r Task 4, echo =FALSE, warning = FALSE}
+df_fm["Startdate"] <- NA
+df_fm["Enddate"] <- NA
+df_fm[c('Startdate', 'Enddate')] <- str_split_fixed(df_fm$Season1Date, 'to', 2)
+df_fm_out <- df_fm %>% 
+             select(c('Season1Date','Startdate','Enddate')) %>% 
+             drop_na()
+df_fm_out
+```
+### Output 4
+Extracted the dates from 'Season1Date' column of the Farmers Market dataframe. 
+Created two new columns called Startdate and Enddate. 
+Filled them by splitting the 'Season1Date' column using str_split_fixed() function of the stringr library.
+Retrieved and displayed the necessary columns in the final dataframe as output, that is, Season1Date, Startdate, and Enddate.
+
+## Task 5, Question 1
+```{r Task 5.1, echo =FALSE, warning = FALSE}
+df_borough <- df_ny %>% 
+              group_by(BOROUGH) %>%
+              summarise(NUMBER_OF_PEDESTRIANS_INJURED = sum(NUMBER.OF.PEDESTRIANS.INJURED)) %>% 
+              drop_na()
+summary(df_borough)
+#OR
+tapply(df_borough$NUMBER_OF_PEDESTRIANS_INJURED,df_borough$BOROUGH,summary)
+```
+### Output 5.1
+Displayed the mean, median, maximum, minimun, mode and quartiles of number of pedestrians injured.
+Grouped the data set by 'borough' and displayed the above information using the sumamarise function.
+
+## Task 5, Question 2
+```{r Task 5.2, echo =FALSE, warning = FALSE}
+df_vehicle_type <- df_ny %>%
+               group_by(BOROUGH,VEHICLE.TYPE.CODE.1,VEHICLE.TYPE.CODE.2,VEHICLE.TYPE.CODE.3, 
+                        VEHICLE.TYPE.CODE.4,VEHICLE.TYPE.CODE.5) %>%
+               summarise(number_of_accidents = n(), .groups='drop') %>%
+               drop_na()
+df_vehicle_type
+```
+### Output 5.2
+Listed the number of accidents by the type of vehicles, in each borough.
+Grouped them and summarized.
+
+## Task 5, Question 3
+```{r Task 5.3, echo =FALSE, warning = FALSE}
+factors <- df_ny %>%
+       pivot_longer(c(CONTRIBUTING.FACTOR.VEHICLE.1, 
+                 CONTRIBUTING.FACTOR.VEHICLE.2,
+                 CONTRIBUTING.FACTOR.VEHICLE.3, 
+                 CONTRIBUTING.FACTOR.VEHICLE.4, 
+                 CONTRIBUTING.FACTOR.VEHICLE.5),
+                 names_to = "Factors", values_to = "Factors_Responsible", 
+                 values_drop_na = TRUE)
+responsible_factors <- factors %>%
+  group_by(BOROUGH, Factors_Responsible) %>%
+  summarise(Number_of_Accidents = n(), .groups = "drop") %>%
+  drop_na() %>%
+  arrange(Number_of_Accidents)
+head(responsible_factors,15)
+```
+### Output 5.3
+Listed the factors responsible for the accidents in each borough, in descending order. 
+First, used the pivot_longer() function to display the columns in Factors_Responsible column. 
+Then, grouped them by borough and factors responsible and then displayed the number of accidents using the summarize function.
+
+## Task 5, Question 4
+```{r Task 5.4, echo =FALSE, warning = FALSE}
+df_acc_hour<-df_ny
+hours <- sapply(strsplit(as.character(df_ny$CRASH.TIME), ":"), '[', 1)
+df_acc_hour["Hours"]<-as.integer(hours)
+df_acc_hour_final<-df_acc_hour %>% group_by(Hours) %>% summarize(Number_of_accidents=n_distinct(COLLISION_ID)) %>% 
+  arrange(Hours)
+df_acc_hour_final
+```
+### Output 5.4
+Displayed the number of accidents by each hour of the day. 
+Extracted hour from crash time and arranged them.
+
+## Task 5, Question 5
+```{r Task 5.5, echo =FALSE, warning = FALSE}
+df_acc<-df_ny
+month_list<- sapply(strsplit(as.character(df_ny$CRASH.DATE), "/"), '[', 1)
+year_list<- sapply(strsplit(as.character(df_ny$CRASH.DATE), "/"), '[', 3)
+df_acc["Month"]<-as.integer(month_list)
+df_acc["Year"]<-as.integer(year_list)
+df_acc_final <- df_acc %>% 
+  group_by(Year,Month) %>% 
+  summarize(Number_of_accidents=n_distinct(COLLISION_ID)) %>% 
+  arrange(Year,Month)
+df_acc_final
+```
+### Output 5.5
+Displayed the number of accidents by month and year.
+Formatted and Extracted the month and year; then, displayed the number of accidents by month and year using the n_distinct() function.
+
+## Task 5, Question 6
+```{r Task 5.6, echo =FALSE, warning = FALSE}
+df_pivoted <- df_ny %>% 
+  group_by(BOROUGH) %>% 
+  summarize(no_of_persons_injured=sum(NUMBER.OF.PERSONS.INJURED,na.rm=TRUE), 
+            no_of_people_killed = sum(NUMBER.OF.PERSONS.KILLED,na.rm=TRUE),
+            no_of_cyclists_injured = sum(NUMBER.OF.CYCLIST.INJURED,na.rm=TRUE),
+            no_of_cyclists_killed=sum(NUMBER.OF.CYCLIST.KILLED,na.rm=TRUE),
+            no_of_motorists_injured=sum(NUMBER.OF.MOTORIST.INJURED,na.rm=TRUE),
+            no_of_motorists_killed=sum(NUMBER.OF.MOTORIST.KILLED,na.rm=TRUE)) %>% 
+  pivot_longer(cols=no_of_persons_injured:no_of_motorists_killed,names_to="Type_of_Outcome",values_to="People_Count") %>% 
+  filter(BOROUGH=='BROOKLYN')
+df_pivoted
+```
+### Output 5.6
+Displayed the number and type of people killed or injured in Brooklyn. 
+Created a subset filtering the data by Brooklyn and then used the summarise() function for all the data required. 
+Finally, used the pivot_longer() function to display the output in terms of Borough, Type of Outcome and Number of people.
+
+# Conclusion
+i) Learnt to exploit different libraries like dplyr and stringr
+ii) Explored various functions to group records by different variables and values.
+iii) Learnt to filter data, and summarize data after using the group by function.
+iv) Worked a lot with pivot_longer functions, and performed useful statistical analysis using the same.
+v) Also made use of sapply, str_split functions to work with strings, and worked with various functions to deal with dates.
+Overall, learnt to use some of the major libraries useful for exploratory data analysis that can be performed on dataframes.
