@@ -10,7 +10,10 @@ Control Structures (if, for, while)
 Functions and Loops
 Basic Data Handling
 
-📊 Visualizations & Insights
+📊 Visualizations & Insights:
+
+This section highlights key plots generated in the projects. The visualizations are embedded in the .html files, but some important ones are showcased here for quick reference.
+
 
 <img width="674" alt="Screenshot 2025-02-02 at 11 08 13 AM" src="https://github.com/user-attachments/assets/737a8893-61c8-483c-8600-cbd3174bdb2a" />
 
