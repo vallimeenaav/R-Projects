@@ -10,6 +10,8 @@ Control Structures (if, for, while)
 Functions and Loops
 Basic Data Handling
 
+📊 Visualizations & Insights
+
 <img width="674" alt="Screenshot 2025-02-02 at 11 08 13 AM" src="https://github.com/user-attachments/assets/737a8893-61c8-483c-8600-cbd3174bdb2a" />
 
 <img width="674" alt="Screenshot 2025-02-02 at 11 08 28 AM" src="https://github.com/user-attachments/assets/85de13f2-d1a9-4e8f-9c0e-c0f089ab9efe" />
