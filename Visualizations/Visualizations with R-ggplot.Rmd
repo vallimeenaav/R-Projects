@@ -1,0 +1,348 @@
+---
+title: "Homework_4"
+author: "Yishtavi Gedipudi - 002778249, Surya Pratap Singh - 002711807, Valli Meenaa - 002783394"
+date: "2023-02-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+# Installing
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(tidyr)
+library(magrittr)
+library(stringr)
+library(gridExtra)
+library(ggplot2)
+library(corrplot)
+library(reshape2)
+library(RColorBrewer)
+library(readr)
+library(corrr)
+library(ggalluvial)
+library(treemapify)
+library(plotly)
+library(ggpubr)
+```
+
+# Problem Statement
+In this assignment, the focus is to implement various type of visualization plots and come up with conclusive results. The main package to focus on for this assignment is 'ggplot'. For each task, we will come up with different type of graphs and plots, which will help us to visualize the data in different forms. 
+
+
+
+
+# TASK 1
+Generate the density plot similar to what is shown in the figure below. 
+(Dataset: airlines_delay.csv)
+```{r task1, echo=FALSE}
+
+#reading dataset from the local
+real_data_airlines <- read.csv("/Users/yishtavigedipudi/Documents/CompViz/HW4_IE6600_Sec1_GROUP22/airlines_delay.csv", na.strings = "")
+#assigning the main dataset for to a new variable for further computation 
+data_airlines<- real_data_airlines
+#accessing particular columsn
+data_airlines <- data_airlines[, c('carrier_delay', 'weather_delay', 'security_delay', 'nas_delay', 'late_aircraft_delay')]
+#assigning the selected columns to a new variable
+data_airlines_delay_type <-data_airlines %>%
+  pivot_longer(cols=c('carrier_delay', 'weather_delay', 'security_delay', 'nas_delay', 'late_aircraft_delay'), 
+  names_to="Delay_Type", values_to="Delay_In_Mins") #pivot table to consider all the selected columns
+  ggplot(data=data_airlines_delay_type, aes(x = log10(Delay_In_Mins), group= Delay_Type, color = Delay_Type, fill = Delay_Type))  +xlab("log delay in mins (x10^x)") +ylab("Density") +geom_density(color = "black", alpha = 0.4) +ggtitle("Density plot of carrier delays in mins")
+
+#plotting density plot graph using ggplot by finding log of the new column Delay_In_Mins, which was created using pivot table and added back to the main.
+  #color is decided based on the type of the delay, displaying x and y labels for better understanding of the graph
+  
+```
+
+# OUTPUT 1
+In the above plot, we have computed the density plot for five different categories of the delays. To find the distribution, log10 function is used. After this task, we now have better understanding of working with the density plots.
+
+
+
+
+# TASK 2
+Generate correlation plots for arr_flights, arr_del15, arr_cancelled, 
+arr_diverted, arr_delay, carrier_delay, weather_delay, nas_delay, 
+security_delay and late_aircraft_delay. The below image is just for your 
+reference, you are expected to create a plot with labels properly aligned and 
+not overlapping. (Dataset : airlines_delay.csv)
+```{r task2, echo=FALSE}
+
+real_data_airlines <- na.omit(real_data_airlines) #checking for null values, and omit if present from the main dataset
+data_airlines_corr <- cor(real_data_airlines[, c(7:16)]) #computing correlation, variance and covariance for columns 7 to 16 from the main dataset
+#data_airlines_corr
+data_airlines_corr_plot <- corrplot.mixed(data_airlines_corr, t1.cex=0.4) #plotting correlation plots
+
+```
+
+# OUTPUT 2
+For the above visualization, the intensity of the elements are all bluish in range. This is because the intensity of color red in the bar legend goes towards the negative correlation, but because we have all positive values of the correlaton, red patterns are not observed in the plot, due to which the plot is not same as like the question (based on color pattern)
+
+
+
+
+# TASK 3
+Based on your observations from the (Dataset: airlines_delay.csv), 
+create any visualization of your choice.
+```{r task3, echo=FALSE}
+
+visualize_choice <- real_data_airlines %>% #taking a new variable that stores the main dataset
+  group_by(carrier_name) %>% #grouping by carrier name
+  summarize(arr_delay = sum(arr_delay), carrier_delay=sum(carrier_delay), weather_delay=sum(weather_delay), nas_delay=sum(nas_delay), security_delay = sum(security_delay), late_aircraft_delay=sum(late_aircraft_delay)) #finding the sum of all delay categories and updating them simultaneously. Once we have the sum of all the columns (delay types), we then summarize the delays
+
+#In the next part of this code, we will now compute the visualization to display the total numbe of delays by each airlines and will assign different colors for different type of the delays.
+ggplot(visualize_choice, aes(x = carrier_name)) + #passing carrier name on x axis to categorize delays by airlines based on different colors
+  geom_col(aes(y = arr_delay, fill = "arr_delay"), position = "dodge") +
+  geom_col(aes(y = carrier_delay, fill = "carrier_delay"), position = "dodge") +
+  geom_col(aes(y = weather_delay, fill = "weather_delay"), position = "dodge") +
+  geom_col(aes(y = nas_delay, fill = "nas_delay"), position = "dodge") +
+  geom_col(aes(y = security_delay, fill = "security_delay"), position = "dodge") +
+  geom_col(aes(y = late_aircraft_delay, fill = "late_aircraft_delay"), position = "dodge") +
+  
+  scale_fill_manual(values = c("arr_delay" = "blue", "carrier_delay" = "red", "weather_delay" = "green", "nas_delay" = "orange","security_delay" = "black", "late_aircraft_delay"= "yellow")) +
+  xlab("Name of Airline") + ylab("Total Delays") +
+  ggtitle("Airline- Delays ") +
+  #by above line, we are assigning the colors to the each delay case, x labels, y labels, title and legend position. 
+  scale_y_continuous(limits = c(0, max(visualize_choice$arr_delay, visualize_choice$carrier_delay, visualize_choice$weather_delay, visualize_choice$weather_delay, visualize_choice$nas_delay, visualize_choice$late_aircraft_delay)), expand = c(0,0)) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.05)) +
+  theme(legend.position = "right")
+
+```
+
+# OUTPUT 3
+By the above plot, we can determine and visualize the total number of error by different airlines respectively. After the computation and visualization, one pattern can be observed that the most common type of delays in case of every airlines are delay due to arrival and delay due to being late. Thus, by above, it is clear that southwest airlines is the airlines with most number of total delays followed by the american airlines. The airlines with least number of total delays, according to the graph, are Comair Airlines and Hawaiian airlines
+
+
+
+
+# TASK 4
+From ( Dataset: wages_jobs.csv) generate a heat map similar to the one shown 
+below. The variable Difference is defined as the difference between number of
+male employees and the number of female employees. A negative value indicates
+a greater number of female than male employees.
+```{r task4, echo=FALSE}
+
+#reading new dataset
+Wages_Jobs <- read.csv("/Users/yishtavigedipudi/Documents/CompViz/HW4_IE6600_Sec1_GROUP22/wages_jobs.csv", na.strings = "")
+Wages_Jobs_res <- Wages_Jobs[, c(2,4,10,12)] #reading selected columns 
+colnames(Wages_Jobs_res)[1]  <- "Gender" #renaming column
+colnames(Wages_Jobs_res)[2]  <- "Year" #renaming column
+colnames(Wages_Jobs_res)[3]  <- "Total_Popuation" #renaming column
+colnames(Wages_Jobs_res)[4]  <- "PUMS_Occupation" #renaming column
+Wages_Jobs_res %>%
+  pivot_wider(names_from = "Gender", values_from = "Total_Popuation", values_fill=0) %>% #extracting genders category from gender column and extracting the population of each category (Male and Female) form the Total Population column
+  group_by(PUMS_Occupation, Year)%>% #group by PUMS_Occupation and year
+  summarise(difference=sum(Male)- sum(Female)) %>% #finding sum of male and female category and then summarizing both based on the sum
+  ggplot(aes(x=Year,y=PUMS_Occupation)) + geom_tile(aes(fill= difference)) + xlab("Year") + ylab("Occupation") + ggtitle("Difference between number of Male and Female Employees") + scale_fill_distiller(palette = 'RdYlBu')
+#visualizing the graph and assigning color patter type, which is RdYlBu, assigning x, y labels and suitable title for the plot.
+
+```
+
+# OUTPUT 4
+In the above section, we thus compute the total number of difference in male and female employee categories and visualize the results in form of a heat map. There are several color patterns that can be considered for the above presentation of the categories. However, to make the visualization according to the reference, we have used palette = 'RdYlBu', which clearly represents the difference between male and female employees. 
+
+
+
+
+# TASK 5
+From ( Dataset: wages_jobs.csv ) generate an alluvial chart like the one below
+```{r task5, echo=FALSE}
+
+df_jobs <- data.frame(Wages_Jobs) #new variable that holds Wages_Jobs for further manipulation
+
+#In the next section, we will now generate alluvial chart based on total population, pums occupation and year; aslo assigning the title for the graph and the x and Y labels
+ggplot(data = Wages_Jobs, 
+       aes(y = Total.Population, axis1 = PUMS.Occupation, axis2 = Year)) +
+  geom_alluvium(aes(fill = Gender), width = 1/12) +
+  geom_stratum() +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("Occupation", "Year"), expand = c(.05, .05)) +
+  theme_minimal() + 
+  ggtitle("People with different occupations by gender through different years")
+
+```
+
+# OUTPUT 5
+In the above plot, the main focus is to find the information above the people with different occupations through different years based on genders- male and female, and then visualize the results in form of a alluvial chart. To visualize the data using the alluvial chart, we require packages ggalluvial and treemapify. Based on the graph vislauization, it can be interpreted that the male and female have the same results for different occupation based on years. 
+
+
+
+
+# TASK 6
+From ( Dataset: wages_jobs.csv ) generate a stacked bar plot for the year 2018 
+with Occupation and Average Wage as the axis and Gender as the color
+```{r task6, echo=FALSE}
+
+Stacked_bar_plot_2 <- Wages_Jobs[Wages_Jobs$Year == 2018, ] #column subset based on year
+#In the next part, we now visualize the data using stacked bar chart for occupation and average for the year 2018, with Average wage on the x axis and Pums occupation on the y axis, assigning x label, y label and the title for the plot.
+ggplot(data = Stacked_bar_plot_2, aes(x = PUMS.Occupation, y = Average.Wage, fill = Gender, srt = 20)) +
+  geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 30, 
+                                                                 hjust = 1 )) + scale_y_continuous(breaks = seq(0, 6e+05, by = 40000)) +
+  ggtitle("Occupation and Average Wage for the Year 2018") +
+  theme(text = element_text(size = 10)) +
+  xlab("Average Wage") +
+  ylab("Occupation")
+
+
+
+```
+
+# OUTPUT 6
+In the above task, the key idea was to visualize the data of male and female category to determine the average wage in year 2018 based on occupations. 2018 year was filtered to get conclusive results and the categories were differenciated for both male and female. Once the results were achieved, the visualization was performed in form of a stacked bar chart for male and female, with average wage being on the x axis and occupation on the y. The coloring was done based on category.
+
+
+
+
+# TASK 7
+From ( Dataset: occupations.csv ) generate the following tree map. The area of 
+each rectangle is proportional to the number of people working in that Detailed 
+Occupation.
+```{r task7, echo=FALSE}
+# Load the occupations.csv file into a data frame called df_occupations
+df_occupations = read.csv("/Users/yishtavigedipudi/Documents/CompViz/HW4_IE6600_Sec1_GROUP22/occupations.csv")
+
+# Filter the df_occupations data frame for only the year 2018 and store the result in df_occ
+df_occ <- df_occupations %>%
+  filter(Year == 2018)
+
+# Group the df_occ data frame by the "Detailed.Occupation" and "Major.Occupation.Group" columns and sum the "Total.Population" column by group. Store the result in df_grouped.
+df_grouped <- summarise(group_by(df_occ,Detailed.Occupation,Major.Occupation.Group),total_value=
+            sum(Total.Population))
+
+# Create a ggplot object called df_tree_map that displays a treemap of the workforce distribution by occupation for 2018.
+df_tree_map <-  ggplot(df_grouped,
+                       aes(area = total_value, label=Detailed.Occupation, fill=Major.Occupation.Group)) + 
+  geom_treemap() +
+  ggtitle("Workforce Distribution by Occupation for 2018", ) + theme(text = element_text(size = 10))+
+  geom_treemap_text(size = 10, fontface = "bold", colour = "white", position = "identity", 
+                    place = "center", grow = FALSE, reflow = TRUE,   layout = "squarified") +
+  theme(legend.text = element_text(size = 5)) +
+  theme(legend.title = element_text(size = 7)) +
+  theme(legend.title = element_text(face = "bold")) +
+  theme(plot.title = element_text(size = 10)) +
+  theme(plot.title = element_text(face = "bold"))
+ 
+# Output the plot
+df_tree_map
+
+```
+
+# OUTPUT 7
+This code generates a treemap plot for the workforce distribution by occupation for the year 2018. The treemap displays the detailed occupation as a label, and the area of each treemap rectangle is proportional to the total population in each occupation. The fill color of each rectangle represents the major occupation group to which the detailed occupation belongs. The plot also has a title, "Workforce Distribution by Occupation for 2018", and the text size for the title, legend, and labels are adjusted using the theme() function. Additionally, the font face for the labels, legend, and title is set to "bold". The treemap is laid out using the "squarified" layout.
+
+
+
+
+# TASK 8
+Explore Plotly in R here and create any chart of your choice – from any of the 
+datasets provided in this homework
+```{r task8, echo=FALSE}
+
+# Grouping the data by Year and Gender and calculating average wage and total population
+df_wages_new <- Wages_Jobs %>%
+  group_by(Year,Gender) %>%
+  summarise(avg_wage = mean(Average.Wage), total_population = sum(Total.Population))
+
+# Plot the average wage over the years
+plot_1 <- ggplot(df_wages_new, aes(x= Year, y= avg_wage, group= Gender, color= Gender)) +
+  geom_line(linetype="dashed") +
+  geom_point(size=2) +
+  ggtitle("Variation of average wage over the years") +
+  theme(legend.text = element_text(size = 10)) +
+  theme(legend.title = element_text(size = 12)) +
+  theme(legend.title = element_text(face = "italic")) +
+  theme(plot.title = element_text(size = 15)) +
+  theme(plot.title = element_text(face = "bold"))+
+  theme(axis.title = element_text(family = "Helvetica", size = (10), colour = "steelblue4")) +
+  theme(axis.text = element_text(family = "Courier", colour = "cornflowerblue", size = (10))) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggplotly(plot_1)
+
+# Plot the total population over the years
+plot_2 <- ggplot(df_wages_new, aes(x= Year, y= total_population, group= Gender, color= Gender)) +
+  geom_line(linetype="dashed") +
+  geom_point(size=2) +
+  ggtitle("Variation of total population over the years") +
+  theme(legend.text = element_text(size = 10)) +
+  theme(legend.title = element_text(size = 12)) +
+  theme(legend.title = element_text(face = "italic")) +
+  theme(plot.title = element_text(size = 15)) +
+  theme(plot.title = element_text(face = "bold")) +
+  theme(axis.title = element_text(family = "Helvetica", size = (10), colour = "steelblue4")) +
+  theme(axis.text = element_text(family = "Courier", colour = "cornflowerblue", size = (10))) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggplotly(plot_2)
+
+# Arrange the two plots in a figure
+figure <- ggarrange(plot_1, plot_2 + font("x.text", size = 10),nrow = 2)
+# Annotate the figure
+annotate_figure(figure,
+                top = text_grob("Variation of avaerage wage and total population over the years", color = "coral4", face = "bold", size = 18),
+                bottom = text_grob("Data source: wages_jobs.csv", color = "coral1",
+                                   hjust = 1, x = 1, face = "italic", size = 10),
+                left = text_grob("Figure arranged using ggpubr", color = "brown", rot = 90)
+)
+
+
+```
+
+# OUTPUT 8
+This code explores Plotly by using the ggplotly() function to convert ggplot objects into interactive Plotly charts.
+The code creates two line plots, one visualizing the variation of average wage over the years, the other visualizing the variation of total population over the years, both separated by gender.
+Then it arranges the two plots vertically and adds annotations to the figure such as the title, source of data, and the package used for arranging the figure.
+
+
+
+
+# TASK 9
+Pick any hex colors (minimum 3) of your choice and create a donut chart from 
+any of the datasets provided in this homework.
+```{r task9, echo=FALSE}
+# Group the data by Major Occupation Group and summarize total population
+donut_plot <- df_occupations %>% 
+  group_by(Major.Occupation.Group) %>% 
+  summarise(tot_pop = sum(Total.Population))
+# Calculate the fraction of total population for each Major Occupation Group
+donut_plot$fraction = donut_plot$tot_pop / sum(donut_plot$tot_pop)
+# Calculate ymax and ymin for each Major Occupation Group
+donut_plot$ymax = cumsum(donut_plot$fraction)
+donut_plot$ymin = c(0, donut_plot$ymax[1:(nrow(donut_plot)-1)])
+# Calculate the position of the label
+donut_plot$labelPosition <- (donut_plot$ymax + donut_plot$ymin) / 2
+# Add the label for each Major Occupation Group with percentage of population
+donut_plot$label <- paste0(round(donut_plot$ymax - donut_plot$ymin, 2)*100, "%")
+donut_plot$label <- paste0(round(donut_plot$ymax - donut_plot$ymin, 2)*100, "%")
+
+# Plot the donut plot with ggplot
+final_plot <- ggplot(donut_plot, 
+                     aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Major.Occupation.Group)) +
+  geom_rect(color = "black") +
+  coord_polar(theta="y") + 
+  xlim(c(1,4)) +
+  geom_label( x= 3.75, aes(y=labelPosition, label=label), size=2.5, color="grey28", fontface="bold") +
+  theme_minimal() +
+  ggtitle("Percentage of Population per Major Occupation Group") +
+  theme(plot.title = element_text(hjust = 1.5)) +
+  theme(plot.title = element_text(size = 20)) +
+  theme(plot.title = element_text(face = "bold")) +
+  theme(plot.title = element_text(hjust = 3.5)) +
+  theme(plot.title = element_text(color = "black")) +
+  scale_fill_manual(values=c("#F9C932FF", "#CFE2F3", "#00FFFF","#FCA108FF","#ED6925FF")) +
+  theme_void()
+  #theme(legend.position = "none")
+
+final_plot
+
+```
+
+# OUTPUT 9
+This code generates a donut plot using the ggplot2 library. It summarizes the total population of each major occupation group in the "df_occupations" data frame and calculates the fraction of the total population for each group. The plot is created by defining the y-axis maximum and minimum as the cumulative sum of the population fractions and labeling each segment with its corresponding percentage. The plot is further customized using various theme and scale functions such as setting the title, font size, color, and fill color for each segment. The final plot is stored in the "final_plot" object.
+
+
+
+
+# Conclusion:
+After this assignment, we, as a group, performed several visualization concepts to understand each type of graph in detail. This assignment helped us to understand which type of graph suits best for a particular type of computation, which is very crucial to know when working with the data and the visualization. This assignment helped us to understand ggplot and other visualization libraries in depth. We now have a better understanding of data visualization using different graphs and plots for different type of datasets.
