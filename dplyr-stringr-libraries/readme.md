@@ -5,9 +5,9 @@ dplyr_stringr.html
 
 📋 Topics Covered:
 
-Introduction to dplyr for data manipulation
-Filtering, selecting, and mutating data
-stringr for text processing
-Data summarization
+1. Introduction to dplyr for data manipulation
+2. Filtering, selecting, and mutating data
+3. stringr for text processing
+4. Data summarization
 
 
