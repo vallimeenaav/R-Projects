@@ -1,7 +1,7 @@
 📌 Files:
 
-dplyr_stringr.Rmd
-dplyr_stringr.html
+1. dplyr_stringr.Rmd
+2. dplyr_stringr.html
 
 📋 Topics Covered:
 
