@@ -1,10 +1,10 @@
 # R-Projects
 
-Project Overview:
+## Project Overview:
 
 The repository is structured in reverse order of complexity, starting from the basics and progressing towards data wrangling and visualizations.
 
-A. Basics of R
+### A. Basics of R
 
 📌 Files:
 
@@ -18,7 +18,7 @@ A. Basics of R
 3. Functions and Loops
 4. Basic Data Handling
 
-B. dplyr and stringr Libraries
+### B. dplyr and stringr Libraries
 
 📌 Files:
 
@@ -32,7 +32,7 @@ B. dplyr and stringr Libraries
 3. stringr for text processing
 4. Data summarization
 
-C. Data Wrangling with R
+### C. Data Wrangling with R
 
 📌 Files:
 
@@ -46,7 +46,7 @@ C. Data Wrangling with R
 3. Handling missing data
 4. Merging datasets (left_join, inner_join, etc.)
 
-D. Visualizations with ggplot2
+### D. Visualizations with ggplot2
 
 📌 Files:
 
@@ -60,23 +60,20 @@ D. Visualizations with ggplot2
 3. Customizing themes and aesthetics
 4. Faceting and advanced visualizations
 
-How to Use This Repository:
+## How to Use This Repository:
 
-1. Clone the repository:
-
-git clone https://github.com/YOUR_GITHUB_USERNAME/R-Projects.git
-
+1. Clone the repository: git clone https://github.com/YOUR_GITHUB_USERNAME/R-Projects.git
 2. Open .Rmd files in RStudio to view/edit the code.
 3. View .html files in your browser to see the rendered outputs.
 
-📦 Installation & Setup:
+## 📦 Installation & Setup:
 
 Before running the .Rmd files, ensure you have the required R packages installed. You can install them using the following commands:
 
-# Install essential packages
+#### Install essential packages
 install.packages(c("tidyverse", "ggplot2", "dplyr", "stringr", "readr", "lubridate", "knitr", "rmarkdown"))
 
-# Load libraries
+#### Load libraries
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -86,7 +83,7 @@ library(lubridate)
 library(knitr)
 library(rmarkdown)
 
-🖥 Rendering the .Rmd Files:
+## 🖥 Rendering the .Rmd Files:
 
 To render the R Markdown files to HTML, use:
 
