@@ -1,14 +1,14 @@
 📌 Files:
 
-Basics_of_R.Rmd – R Markdown file containing the code and explanations.
-Basics_of_R.html – Rendered HTML output.
+1. Basics_of_R.Rmd – R Markdown file containing the code and explanations.
+2. Basics_of_R.html – Rendered HTML output.
 
 📋 Topics Covered:
 
-Variables, Data Types, and Operators in R
-Control Structures (if, for, while)
-Functions and Loops
-Basic Data Handling
+1. Variables, Data Types, and Operators in R
+2. Control Structures (if, for, while)
+3. Functions and Loops
+4. Basic Data Handling
 
 📊 Visualizations & Insights:
 
