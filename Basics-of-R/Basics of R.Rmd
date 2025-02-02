@@ -1,0 +1,112 @@
+---
+title: "HW 1 - IE 6600 – Sec 1 - Valli Meenaa Vellaiyan"
+author: "Valli Meenaa Vellaiyan || NUID: 002783394"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Libraries, include = FALSE}
+#installing libraries for clustering and plotting
+library(ggplot2)
+library(cluster)
+library(stats)
+library(factoextra)
+```
+
+# Problem statement
+i) To understand basic R commands (for creating vectors, matrices, etc.) and performing basic analysis on one of the in-built datasets in R-Studio.
+ii) To create an R-Markdown file and knit it to a pdf/html file.
+
+## Task 1
+```{r Task 1, echo = FALSE, warning = FALSE} 
+getwd()   #to display my current working directory
+```
+### Output 1
+The function "getwd()" is used to display the filepath of the current working directory.
+
+## Task 2
+```{r Task 2, echo = FALSE, warning = FALSE}
+x <- 1   #assigning numerical value 1 to the variable x
+y <- "1"   #assigning character value "1" to the variable y
+class(x)   #finding the class of x
+class(y)   #finding the class of y
+```
+### Output 2
+Variable x is assigned with a numeric value of 1, therefore class(x) returns "numeric".
+Variable y is assigned with the character "1", therefore class(y) returns "character".
+
+## Task 3
+```{r Task 3, echo = FALSE, warning = FALSE}
+vect <- c(7L, 2L, 1L, 6L, 5L)   #creating a numerical vector "vect"
+vect   #displaying the vector "vect"
+length(vect)   #displaying the length of the vector "vect"
+vect[3]   #method 1 to display the third element of this vector
+vect[c(3)]   #method 2 to display the third element of this vector
+vect[3:3]   #method 3 to display the third element of this vector
+```
+### Output 3
+A numeric vector "vect" of length 5 is created, consisting of the elements 7, 2, 1, 6, 5. The third element of this vector is accessed in three different ways, by using vector indexing.
+
+## Task 4 
+```{r Task 4, echo = FALSE, warning = FALSE}
+A <- matrix(c(1,2,3,4), nrow =2, ncol = 2)   #creating a 2x2 matrix "A" using the matrix() function
+A   #displaying the matrix "A"
+B <- cbind(A, c(5,6))   #adding a column to the above matrix "A" using the cbind() function, and storing it in a new matrix "B"
+B   #displaying the matrix "B"
+C <- rbind(B, c(8,9,10))   #adding a row to the above matrix "B" using the rbind() function, and storing it in a new matrix "C"
+C   #displaying the matrix "C"
+```
+### Output 4
+A matrix "A" with the elements {1,2,3,4} is created using the matrix() function. A column with the elements {5,6} is added to "A" using the cbind() function, and this new matrix is stored in "B". A row with the elements {7,8,9} is added to "B" using the rbind() function, and this new matrix is stored in "C". All the 3 matrices are displayed.
+
+## Task 5
+```{r Task 5, echo = FALSE, warning = FALSE}
+head(iris,5)   #returns the first 5 rows of the "iris" dataframe 
+tail(cars,5)   #returns the last 5 rows of the "cars" dataframe
+```
+### Output 5
+The "head()" function is used to display the first 5 rows of the "iris" dataframe. The "tail()" function is used to display the last 5 rows of the "cars" dataframe.
+
+## Task 6
+```{r Task 6, echo = FALSE, warning = FALSE}
+data()   #to view the list of available built-in datasets
+head(airquality,10)   #displaying the first 10 rows of the in-built dataset "airquality"
+help("airquality")   #it is discovered that the dataset contains daily air quality measurements in New York, from May 1973 to September 1973
+#ANALYSIS 1
+summary(airquality)
+#ANALYSIS 2
+ggplot(airquality, aes(x = Ozone, y = Solar.R)) + geom_point()
+#ANALYSIS 3
+hist(airquality$Temp,col='steelblue',main='Histogram',xlab='Temperature',ylab='Frequency')
+#ANALYSIS 4
+cor(airquality)
+cat('Correlation between wind and ozone is', cor(airquality$Wind,airquality$Ozone))
+plot(airquality$Wind,airquality$Ozone)
+cat('Correlation between temperature and ozone is', cor(airquality$Temp,airquality$Ozone))
+plot(airquality$Temp,airquality$Ozone)
+#ANALYSIS 5
+airquality <- na.omit(airquality)
+kmeans_model <- kmeans(airquality[,c("Ozone", "Solar.R", "Wind", "Temp")], centers = 4)
+kmeans_model
+fviz_cluster(kmeans_model, data = airquality[,c("Ozone", "Solar.R", "Wind", "Temp")])
+```
+
+### Output 6
+
+The "data()" function is used to get a list of all the in-built datasets present in R. I chose the dataset "airquality", which consist of the daily readings of 4 air quality values (Ozone, Solar, Wind, Temp) in New York, from May to September 1973. The "head()" function returns the first 10 rows of the dataset. To learn more about the attributes and definitions of the selected datatset, I've used the "help()" function.
+
+Analysis 1: The summary() function is used to generate a summary of the variables in this dataset, including mean, median, min, max, and quartiles.
+Analysis 2: The ggplot() function is used to create a scatterplot, with Ozone on the x-axis and Solar Radiations on the y-axis, to observe the distribution of the data points and identify outliers.
+Analysis 3: The hist() function is used to create an histogram of the numerical variable Temp, to display the frequency of the datapoints within bins/intervals.
+Analysis 4: The cor() function is used to find the correlations between all the variables. From the output, it is observed that the correlation between Wind and Ozone is maximum and positive; it is also observed that the correlation between Temp and Ozone is maximum and negative. 
+Analysis 5: Omitted the NA values, and created a kmeans model to perform clustering of the data. Then, used fviz_cluster to plot the clustering. 
+
+# Conclusion
+i) I learnt to use the "getwd()" function to get my current working directory. I used the "class()" function to find the class of a variable.
+ii) I learnt to create a vector and perform a few operations on the vector, like finding the length, retrieving an element from it, etc. I also learnt to create a matrix and combine matrices using "rbind()" and "cbind()" functions.
+iii) Further, I learnt to work with in-built datasets in R-Studio. I performed different types of analyses on the "airquality" dataset. I summarized the dataset which produced the mean, median, min, max, and quartile values of each column in the dataset. I worked with scatterplots and histograms to observe the distribution of data points and explore relationships between different variables of the dataset.
+iv) Using the abovementioned dataset, I also worked with the "cor()" function to find the correlation between different variables. Moreover, I learnt to create a kmeans model to perform clustering of data, and then plotted the clusters using "fviz_cluster()" function.
