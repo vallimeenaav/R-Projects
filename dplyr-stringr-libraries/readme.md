@@ -11,6 +11,7 @@ stringr for text processing
 Data summarization
 
 📊 Visualizations & Insights:
+
 This section highlights key plots generated in the projects. The visualizations are embedded in the .html files, but some important ones are showcased here for quick reference.
 
 
